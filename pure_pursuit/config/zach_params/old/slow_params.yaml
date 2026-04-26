@@ -1,0 +1,13 @@
+/pure_pursuit_node:
+  ros__parameters:
+    use_sim: false
+    csv_path: "[file].csv"
+    lookahead_dist: 1.25 # ignored
+    lookahead_min: 1.35
+    lookahead_max: 3.0
+    lookahead_window: 5
+    max_curvature: 0.4
+    fast_speed: 5.0
+    slow_speed: 2.25
+    steering_limit: 0.4189
+    use_waypoint_speed: false

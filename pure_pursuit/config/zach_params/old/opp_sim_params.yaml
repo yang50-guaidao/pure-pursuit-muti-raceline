@@ -1,0 +1,17 @@
+/pure_pursuit_node:
+  ros__parameters:
+    use_sim: true
+    csv_path: "waypoints/sim_waypoints_2_smoothed.csv"
+    lookahead_min: 1.0
+    lookahead_max: 3.0
+    lookahead_window: 40
+    max_curvature: 0.5
+    fast_speed: 2.0       # slow enough for ego to catch up
+    slow_speed: 1.0
+    steering_limit: 0.4189
+    use_waypoint_speed: false
+    publish_drive: true
+    use_steer_filter: true
+    steer_deadband: 0.01
+    steer_alpha: 0.4
+    rrt_path_timeout: 0.0  # opp car never listens to RRT

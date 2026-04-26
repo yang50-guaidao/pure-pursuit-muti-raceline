@@ -1,0 +1,20 @@
+/pure_pursuit_node:
+  ros__parameters:
+    use_sim: false
+
+    lookahead_min: 0.8
+    lookahead_max: 3.0
+    lookahead_window: 5
+    lookahead_idx_fwd: 6 # 0 = distance-based; >0 = fixed index offset (try 5-8 with dense turn-biased waypoints)
+
+    max_curvature: 0.4
+    fast_speed: 8.5
+    slow_speed: 2.5
+    use_waypoint_speed: true
+    # brake_lookahead: 0 # not good anymore - overengineering since wayppoint speed takes care of this
+    max_accel: 2.5
+    publish_drive: true
+
+    use_steer_filter: false
+    steer_deadband: 0.01
+    steer_alpha: 0.4

@@ -1,0 +1,32 @@
+/pure_pursuit_multi_node:
+  ros__parameters:
+    use_sim: true
+
+    lookahead_min: 0.9
+    lookahead_max: 3.0
+    lookahead_window: 10
+    lookahead_idx_fwd: 3 # 0 = distance-based; >0 = fixed index offset (try 5-8 with dense turn-biased waypoints)
+
+    max_curvature: 0.4
+    fast_speed: 9.0
+    slow_speed: 3.5
+    use_waypoint_speed: true
+    # brake_lookahead: 0 # not good anymore - overengineering since wayppoint speed takes care of this
+    max_accel: 5.0
+    publish_drive: true
+
+    use_steer_filter: false
+    steer_deadband: 0.01
+    steer_alpha: 0.4
+
+    # Multi-lane / opponent-reactive switching
+    # Topic carrying the opponent's pose (Odometry).
+    # Set to "" to disable lane switching and behave as the original single-lane node.
+    opponent_topic: "/opp_racecar/odom"
+    # If any waypoint within `lane_lookahead_idx` ahead of ego on a lane lies within
+    # this distance of the opponent, that lane is considered blocked.
+    lane_occupied_dist: 0.4
+    # Cooldown between consecutive lane switches (seconds), prevents flapping.
+    min_switch_interval_sec: 0.5
+    # Number of forward waypoints scanned per lane when checking occupancy.
+    lane_lookahead_idx: 8

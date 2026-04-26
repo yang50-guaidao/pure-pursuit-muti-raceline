@@ -1,0 +1,5 @@
+# pack-refs with: peeled fully-peeled sorted 
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 refs/remotes/origin/cedric-dev
+218681521c8bfa5d1950ebc50b029ac4d6da5550 refs/remotes/origin/feedback
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 refs/remotes/origin/main
+58245c019c29f109ef20b2a7be6a5cbebc8c520c refs/remotes/origin/zach-dev

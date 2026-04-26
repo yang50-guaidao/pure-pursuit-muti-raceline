@@ -1,0 +1,37 @@
+0000000000000000000000000000000000000000 0c3e4ebc47f4018d1de88ef58710145808ff51e8 yby <yby@yby-virtual-machine.(none)> 1774035935 -0400	clone: from github.com:f1tenth-class/lab-5-slam-and-pure-pursuit-team5.git
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 0c3e4ebc47f4018d1de88ef58710145808ff51e8 yby <yby@yby-virtual-machine.(none)> 1774036073 -0400	checkout: moving from main to boris
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 0c3e4ebc47f4018d1de88ef58710145808ff51e8 yby <yby@yby-virtual-machine.(none)> 1774048227 -0400	checkout: moving from boris to main
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 34b2f475367652e9f3bc631cf4de6c6fbc70d69d yby <yby@yby-virtual-machine.(none)> 1774048512 -0400	pull: Fast-forward
+34b2f475367652e9f3bc631cf4de6c6fbc70d69d 400f0fb9e892514a5cc010c5c2961884dea8bc2a yang50-guaidao <yang50@seas.upenn.edu> 1774050042 -0400	commit: Adding new racelines - boris
+400f0fb9e892514a5cc010c5c2961884dea8bc2a e29e5e7d03923d5c8d9b2baedaee51bc460de933 yang50-guaidao <yang50@seas.upenn.edu> 1774112447 -0400	pull: Fast-forward
+e29e5e7d03923d5c8d9b2baedaee51bc460de933 0c3e4ebc47f4018d1de88ef58710145808ff51e8 yang50-guaidao <yang50@seas.upenn.edu> 1774112780 -0400	checkout: moving from main to boris
+0c3e4ebc47f4018d1de88ef58710145808ff51e8 e29e5e7d03923d5c8d9b2baedaee51bc460de933 yang50-guaidao <yang50@seas.upenn.edu> 1774112800 -0400	merge main: Fast-forward
+e29e5e7d03923d5c8d9b2baedaee51bc460de933 e29e5e7d03923d5c8d9b2baedaee51bc460de933 yang50-guaidao <yang50@seas.upenn.edu> 1774118390 -0400	checkout: moving from boris to main
+e29e5e7d03923d5c8d9b2baedaee51bc460de933 8a0f3a022d7951ef46294ed3a0d47a1212bb5efe yang50-guaidao <yang50@seas.upenn.edu> 1774118398 -0400	pull: Fast-forward
+8a0f3a022d7951ef46294ed3a0d47a1212bb5efe 65ac5ba65f59b0dd812f6443f5b801cac723fa89 yang50-guaidao <yang50@seas.upenn.edu> 1774118662 -0400	commit: new way points
+65ac5ba65f59b0dd812f6443f5b801cac723fa89 709fc2c1ae5cc1fb5193408e5c5f0dbcca1e49b8 yang50-guaidao <yang50@seas.upenn.edu> 1774121716 -0400	pull: Fast-forward
+709fc2c1ae5cc1fb5193408e5c5f0dbcca1e49b8 209ab5942adaaf1cae712f15b50319309b00492f yang50-guaidao <yang50@seas.upenn.edu> 1774121918 -0400	pull: Fast-forward
+209ab5942adaaf1cae712f15b50319309b00492f a567026bd2e9a05619b23a1fcf78fdfc67f30d6e yang50-guaidao <yang50@seas.upenn.edu> 1774122263 -0400	commit: new tra
+a567026bd2e9a05619b23a1fcf78fdfc67f30d6e c2d142e2ab6c6a96bed55543d31300b8cfaf501d yang50-guaidao <yang50@seas.upenn.edu> 1774125122 -0400	pull: Fast-forward
+c2d142e2ab6c6a96bed55543d31300b8cfaf501d 08a3d5555fa9403af5dafaaf5c9c3a8fa19bbb61 yang50-guaidao <yang50@seas.upenn.edu> 1774126032 -0400	commit: v6_b with mu 0.55
+08a3d5555fa9403af5dafaaf5c9c3a8fa19bbb61 86bdb9578f4a4ba3b3f215ed08095b18d6fed202 yang50-guaidao <yang50@seas.upenn.edu> 1774129277 -0400	pull: Fast-forward
+86bdb9578f4a4ba3b3f215ed08095b18d6fed202 585318b3b3e21e582fe50684990a12918323241e yang50-guaidao <yang50@seas.upenn.edu> 1774129609 -0400	commit: new
+585318b3b3e21e582fe50684990a12918323241e 284d84c148151ba7cd67f4951986197ddb2366a0 yang50-guaidao <yang50@seas.upenn.edu> 1774129649 -0400	pull --rebase (start): checkout 284d84c148151ba7cd67f4951986197ddb2366a0
+284d84c148151ba7cd67f4951986197ddb2366a0 76f0cdffc8011554582e59d59921a4c1eb97ea4d yang50-guaidao <yang50@seas.upenn.edu> 1774129649 -0400	pull --rebase (pick): new
+76f0cdffc8011554582e59d59921a4c1eb97ea4d 76f0cdffc8011554582e59d59921a4c1eb97ea4d yang50-guaidao <yang50@seas.upenn.edu> 1774129649 -0400	pull --rebase (finish): returning to refs/heads/main
+76f0cdffc8011554582e59d59921a4c1eb97ea4d 89b61c3dea4c9e97f04c4479de6efa1f75464ef6 yang50-guaidao <yang50@seas.upenn.edu> 1774129767 -0400	commit: 0.45 mu
+89b61c3dea4c9e97f04c4479de6efa1f75464ef6 19a796c2dd602feec311465c6642caee3ad5cfe4 yang50-guaidao <yang50@seas.upenn.edu> 1774133161 -0400	pull: Fast-forward
+19a796c2dd602feec311465c6642caee3ad5cfe4 429a5df095f7ffd8dc005b103d07f680a2166f31 yang50-guaidao <yang50@seas.upenn.edu> 1774133304 -0400	commit: new
+429a5df095f7ffd8dc005b103d07f680a2166f31 b48fa59b84df2f5dc4ff3af37ba0e8b12fcb12c5 yang50-guaidao <yang50@seas.upenn.edu> 1774133336 -0400	pull --rebase (start): checkout b48fa59b84df2f5dc4ff3af37ba0e8b12fcb12c5
+b48fa59b84df2f5dc4ff3af37ba0e8b12fcb12c5 080e7b488704978d085f6cb74adf1e86aa2e971a yang50-guaidao <yang50@seas.upenn.edu> 1774133336 -0400	pull --rebase (pick): new
+080e7b488704978d085f6cb74adf1e86aa2e971a 080e7b488704978d085f6cb74adf1e86aa2e971a yang50-guaidao <yang50@seas.upenn.edu> 1774133336 -0400	pull --rebase (finish): returning to refs/heads/main
+080e7b488704978d085f6cb74adf1e86aa2e971a a91a5d4f9d3f1065dfc104ce0e657b7d231b37d0 yang50-guaidao <yang50@seas.upenn.edu> 1774134442 -0400	commit: try 3.5 on this map
+a91a5d4f9d3f1065dfc104ce0e657b7d231b37d0 69763f83346a225d98b0d0f2f3fd9c22f4a1c181 yang50-guaidao <yang50@seas.upenn.edu> 1776013520 -0400	pull: Fast-forward
+69763f83346a225d98b0d0f2f3fd9c22f4a1c181 445a1dc3ed2735932658f9b3a07ee8d56bff0068 yang50-guaidao <yang50@seas.upenn.edu> 1776032591 -0400	commit: map
+445a1dc3ed2735932658f9b3a07ee8d56bff0068 69763f83346a225d98b0d0f2f3fd9c22f4a1c181 yang50-guaidao <yang50@seas.upenn.edu> 1776032742 -0400	reset: moving to HEAD~1
+69763f83346a225d98b0d0f2f3fd9c22f4a1c181 a65cf3a5d9c14fe7aaf256bc39b7d1cd5ab1091f yang50-guaidao <yang50@seas.upenn.edu> 1776032779 -0400	commit: map
+a65cf3a5d9c14fe7aaf256bc39b7d1cd5ab1091f a65cf3a5d9c14fe7aaf256bc39b7d1cd5ab1091f yang50-guaidao <yang50@seas.upenn.edu> 1776530837 -0400	reset: moving to HEAD
+a65cf3a5d9c14fe7aaf256bc39b7d1cd5ab1091f c62329774d45dce216905a272448088f713c4226 yang50-guaidao <yang50@seas.upenn.edu> 1776530884 -0400	pull: Fast-forward
+c62329774d45dce216905a272448088f713c4226 afa37a87c966517021cb494dee5751599ad591aa yang50-guaidao <yang50@seas.upenn.edu> 1776545048 -0400	commit: new track
+afa37a87c966517021cb494dee5751599ad591aa c62329774d45dce216905a272448088f713c4226 yang50-guaidao <yang50@seas.upenn.edu> 1776545284 -0400	reset: moving to HEAD~1
+c62329774d45dce216905a272448088f713c4226 b8292a1f190fa5b1b0d7bbaeb5e82995089c65ac yang50-guaidao <yang50@seas.upenn.edu> 1776545332 -0400	commit: new track

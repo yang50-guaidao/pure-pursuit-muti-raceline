@@ -1,0 +1,28 @@
+/pure_pursuit_node:
+  ros__parameters:
+    use_sim: false
+    csv_path: "[file].csv"
+    lookahead_dist: 1.25 # ignored
+    lookahead_min: 1.5
+    lookahead_max: 4.0
+    lookahead_window: 5
+    max_curvature: 0.4
+    fast_speed: 6.0
+    slow_speed: 2.5
+    steering_limit: 0.4189
+    use_waypoint_speed: true
+
+    # brake_lookahead: 5  > average of current + next 5 (balanced)
+    # brake_lookahead: -5 > min of next 5 waypoints (prev implementation)
+    # brake_lookahead: 0  > just current waypoint speed
+    brake_lookahead: 5
+
+    max_accel: 2.5
+    steer_alpha: 0.4
+
+
+    use_steer_filter: false
+    steer_deadband: 0.015 #about 0.5 degrees
+
+    lookahead_ratio: 8.0
+    use_velocity_lookahead: false

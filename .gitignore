@@ -1,0 +1,6 @@
+**/__pycache__/
+**/build/
+**/install/
+**/log/
+.vscode/
+pure_pursuit/scripts/raceline_app/
