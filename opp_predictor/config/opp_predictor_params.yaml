@@ -1,0 +1,52 @@
+opp_predictor_node:
+  ros__parameters:
+    # true = real car (subscribes /pf/viz/inferred_pose PoseStamped)
+    # false = sim       (subscribes /ego_racecar/odom Odometry)
+    real_test: true
+    map_name: "racetrack_test"
+    map_img_ext: ".pgm"
+
+    # Empty paths -> auto-resolve from share/opp_predictor/{maps,csv}/<map_name>/
+    map_yaml_path: ""
+    map_img_path: ""
+    bound_dir: ""
+
+    inner_bound_file: "inner_bound"
+    outer_bound_file: "outer_bound"
+
+    # Topics
+    scan_topic: "/scan"
+    ego_pose_topic_real: "/pf/viz/inferred_pose"
+    ego_pose_topic_sim: "/ego_racecar/odom"
+    opp_state_topic: "/opp_predict/state"
+    opp_bbox_topic: "/opp_predict/bbox"
+    opp_viz_pose_topic: "/opp_predict/viz/pose"
+    opp_viz_bbox_topic: "/opp_predict/viz/bbox"
+    grid_topic: "/grid"
+    obstacle_topic: "/obstacle"
+    fps_topic: "/fps"
+
+    # Search grid in ego frame (meters)
+    # Tighten bounds to suppress wall false-positives; loosen to detect at longer range.
+    grid_xmin: 0.0
+    grid_xmax: 5.0
+    grid_ymin: -2.5
+    grid_ymax: 2.5
+    grid_resolution: 0.04
+    plot_resolution: 0.1
+    grid_safe_dist: 0.1
+
+    # Clustering: dist_tol = car-width-ish, size_tol = min cluster points to be opp
+    cluster_dist_tol: 0.27
+    cluster_size_tol: 15
+
+    # Visualization toggles
+    visualize: true
+    visualize_grid: false
+    visualize_obstacle: false
+    visualize_opp_pose: true
+    visualize_opp_bbox: true
+
+    # If true, skip cv2 polygon track filter and accept all clustered points.
+    # Useful for testing without bound files; expect wall false-positives.
+    disable_track_filter: false

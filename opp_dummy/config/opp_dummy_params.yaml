@@ -1,0 +1,29 @@
+opp_dummy_node:
+  ros__parameters:
+    # Empty csv_path -> resolve <pure_pursuit_multi share>/waypoints/lanes/<csv_name>.csv
+    csv_path: ""
+    csv_name: "lane_optimal"
+
+    # Speed: fixed value when overwrite_speed=true (slower than ego so overtaking is observable)
+    overwrite_speed: true
+    speed: 3.0
+    vel_scale: 0.8
+
+    # Speed-adaptive lookahead distance
+    minL: 0.5
+    maxL: 1.5
+    Lscale: 7.0
+
+    # Speed-adaptive PD steering
+    minP: 0.5
+    maxP: 0.7
+    Pscale: 7.0
+    D: 5.0
+    max_steer: 0.36
+
+    interpScale: 20
+    visualize: true
+
+    # f1tenth_gym_ros 2-car namespace
+    odom_topic: "/opp_racecar/odom"
+    drive_topic: "/opp_drive"

@@ -24,20 +24,32 @@ Built on top of a single-line C++ pure pursuit node and the `f1tenth_gym_ros` si
 
 ## Repository layout
 
+This repo holds three ROS 2 packages — `pure_pursuit_multi` (the controller) plus its two companions. Drop the whole tree into your `~/sim_ws/src/` and `colcon build` finds all three.
+
 ```
-pure_pursuit/
-├── src/pure_pursuit_node.cpp           # main C++ node
-├── src/pure_pursuit_boost.cpp          # alternative implementation
-├── scripts/generate_offset_lanes.py    # CSV lane generator
-├── scripts/waypoint_logger.py          # record waypoints from odom
-├── scripts/smooth_waypoints.py         # spline-smooth a recorded path
-├── waypoints/lanes/                    # generated multi-lane CSVs
-├── waypoints/race/                     # source single-line racelines
-├── config/zach_params/*.yaml           # ROS parameter files (sim & real)
-└── launch/zach/
-    ├── sim_launch.py                   # ego only (sim mode)
-    ├── sim_two_cars_launch.py          # ego + opp_dummy (full sim test)
-    └── real_launch.py                  # ego on real car
+puresuit_muti-reacetrack/
+├── pure_pursuit/                       # ROS pkg: pure_pursuit_multi
+│   ├── src/pure_pursuit_node.cpp       # main C++ node
+│   ├── src/pure_pursuit_boost.cpp      # alternative implementation
+│   ├── scripts/generate_offset_lanes.py
+│   ├── waypoints/lanes/                # generated multi-lane CSVs
+│   ├── waypoints/race/                 # source single-line racelines
+│   ├── config/zach_params/*.yaml       # ROS params (sim & real)
+│   └── launch/zach/
+│       ├── sim_launch.py               # ego only (sim mode)
+│       ├── sim_two_cars_launch.py      # ego + opp_dummy (full sim test)
+│       └── real_launch.py              # ego on real car
+├── opp_dummy/                          # ROS pkg: drives sim opp along a fixed lane
+│   ├── opp_dummy/opp_dummy_node.py
+│   ├── config/opp_dummy_params.yaml
+│   └── launch/opp_dummy_launch.py
+└── opp_predictor/                      # ROS pkg: real-car LiDAR opp detector
+    ├── opp_predictor/opp_predictor_node.py
+    ├── scripts/lane_generator.py       # one-time bound generator
+    ├── maps/                           # map .pgm/.yaml needed by lane_generator
+    ├── csv/<map>/                      # bound .npy outputs land here
+    ├── config/opp_predictor_params.yaml
+    └── launch/opp_predictor_launch.py
 ```
 
 CSV format is 4 columns: `x, y, yaw, speed_ratio` where `speed_ratio ∈ [0, 1]` is mapped to `[slow_speed, fast_speed]` at runtime.
@@ -136,7 +148,7 @@ Lane priority order is the order of `lane_csv_paths` in the launch file (last en
 The detector filters LiDAR returns to keep only points lying on the track (between inner and outer wall polygons). Generate the polygons for `racetrack_test`:
 
 ```bash
-cd ~/sim_ws/src/opp_predictor
+cd ~/sim_ws/src/puresuit_muti-reacetrack/opp_predictor
 python3 scripts/lane_generator.py --map racetrack_test
 ```
 
@@ -152,7 +164,7 @@ After generating, rebuild so the new files reach `share/`:
 cd ~/sim_ws && colcon build --packages-select opp_predictor
 ```
 
-For other maps, copy `<map>.pgm` + `<map>.yaml` into `~/sim_ws/src/opp_predictor/maps/` first, then run with `--map <map>`.
+For other maps, copy `<map>.pgm` + `<map>.yaml` into `~/sim_ws/src/puresuit_muti-reacetrack/opp_predictor/maps/` first, then run with `--map <map>`.
 
 ### Step 2 — sim sanity check (verify the detector works before going to hardware)
 
@@ -194,7 +206,7 @@ ros2 launch pure_pursuit_multi real_launch.py
 
 ### Step 4 — field tuning (these almost always need adjustment on hardware)
 
-Edit `~/sim_ws/src/opp_predictor/config/opp_predictor_params.yaml`:
+Edit `~/sim_ws/src/puresuit_muti-reacetrack/opp_predictor/config/opp_predictor_params.yaml`:
 
 | Param | Symptom → fix |
 |---|---|
