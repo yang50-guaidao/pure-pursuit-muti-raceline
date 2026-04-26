@@ -63,9 +63,21 @@ public:
 
         // Multi-lane / opponent params
         this->declare_parameter("opponent_topic", std::string("/opp_racecar/odom"));
+        this->declare_parameter("opponent_msg_type", std::string("Odometry"));  // "Odometry" or "PoseStamped"
         this->declare_parameter("lane_occupied_dist", 0.4);
         this->declare_parameter("min_switch_interval_sec", 0.5);
         this->declare_parameter("lane_lookahead_idx", 30);
+
+        // Follow-mode (adaptive cruise) when the active lane is blocked and we
+        // can't switch (all lanes blocked, or in cooldown). Speed is capped
+        // linearly between [follow_min_speed, follow_max_speed] proportional to
+        // (gap_to_opp - follow_brake_dist) / (follow_release_dist - follow_brake_dist).
+        // gap < follow_brake_dist => follow_min_speed (often a full stop).
+        // gap > follow_release_dist => no cap (back to lane speed).
+        this->declare_parameter("follow_min_speed", 0.0);     // m/s when right behind opp
+        this->declare_parameter("follow_max_speed", 4.0);     // m/s at follow_release_dist
+        this->declare_parameter("follow_brake_dist", 0.6);    // m — full brake threshold
+        this->declare_parameter("follow_release_dist", 2.5);  // m — cap removed beyond
 
         // Get params
         this->get_parameter("use_sim", use_sim_);
@@ -97,9 +109,14 @@ public:
         this->get_parameter("rrt_lookahead", rrt_lookahead_);
 
         this->get_parameter("opponent_topic", opponent_topic_);
+        this->get_parameter("opponent_msg_type", opponent_msg_type_);
         this->get_parameter("lane_occupied_dist", lane_occupied_dist_);
         this->get_parameter("min_switch_interval_sec", min_switch_interval_sec_);
         this->get_parameter("lane_lookahead_idx", lane_lookahead_idx_);
+        this->get_parameter("follow_min_speed", follow_min_speed_);
+        this->get_parameter("follow_max_speed", follow_max_speed_);
+        this->get_parameter("follow_brake_dist", follow_brake_dist_);
+        this->get_parameter("follow_release_dist", follow_release_dist_);
 
         // Load lanes (multi-lane preferred, single csv_path as fallback)
         init_lanes();
@@ -146,13 +163,29 @@ public:
                 std::bind(&PurePursuit::pose_callback, this, std::placeholders::_1));
         }
 
-        // Opponent odom subscription (only if multi-lane and topic non-empty)
+        // Opponent subscription (only if multi-lane and topic non-empty).
+        // Message type is parameter-controlled so the same node consumes either:
+        //   - sim ground truth via /opp_racecar/odom (Odometry)
+        //   - real-car opponent_predictor output via /opp_predict/state (PoseStamped)
         if (!opponent_topic_.empty() && lanes_.size() > 1) {
-            opp_odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
-                opponent_topic_, 10,
-                std::bind(&PurePursuit::opp_odom_callback, this, std::placeholders::_1));
-            RCLCPP_INFO(this->get_logger(), "Subscribed to opponent odom on '%s'",
-                        opponent_topic_.c_str());
+            if (opponent_msg_type_ == "PoseStamped") {
+                opp_pose_sub_ = this->create_subscription<geometry_msgs::msg::PoseStamped>(
+                    opponent_topic_, 10,
+                    [this](const geometry_msgs::msg::PoseStamped::ConstSharedPtr msg) {
+                        opp_x_ = msg->pose.position.x;
+                        opp_y_ = msg->pose.position.y;
+                    });
+                RCLCPP_INFO(this->get_logger(),
+                            "Subscribed to opponent (PoseStamped) on '%s'",
+                            opponent_topic_.c_str());
+            } else {
+                opp_odom_sub_ = this->create_subscription<nav_msgs::msg::Odometry>(
+                    opponent_topic_, 10,
+                    std::bind(&PurePursuit::opp_odom_callback, this, std::placeholders::_1));
+                RCLCPP_INFO(this->get_logger(),
+                            "Subscribed to opponent (Odometry) on '%s'",
+                            opponent_topic_.c_str());
+            }
         } else {
             RCLCPP_INFO(this->get_logger(),
                         "Opponent tracking disabled (topic='%s', lanes=%zu) — single-lane mode",
@@ -232,6 +265,7 @@ private:
     rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr pose_sub_;
     rclcpp::Subscription<nav_msgs::msg::Path>::SharedPtr rrt_path_sub_;
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr opp_odom_sub_;
+    rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr opp_pose_sub_;
 
     // Services
     rclcpp::Service<raceline_msgs::srv::UpdateRaceline>::SharedPtr update_raceline_srv_;
@@ -263,6 +297,7 @@ private:
     std::string csv_path_;
     std::vector<std::string> lane_csv_paths_;
     std::string opponent_topic_;
+    std::string opponent_msg_type_;
 
     // Dynamic params
     // double lookahead_dist_;
@@ -292,6 +327,14 @@ private:
     double lane_occupied_dist_;
     double min_switch_interval_sec_;
     int lane_lookahead_idx_;
+    double follow_min_speed_;
+    double follow_max_speed_;
+    double follow_brake_dist_;
+    double follow_release_dist_;
+
+    // Set by update_active_lane every frame; consumed by publish_drive.
+    // active_gap_to_opp_ = +inf when no opp seen / active lane clear.
+    double active_gap_to_opp_ = std::numeric_limits<double>::infinity();
 
     double prev_speed_ = 0.0;
     rclcpp::Time prev_time_;
@@ -326,6 +369,10 @@ private:
         this->get_parameter("lane_occupied_dist", lane_occupied_dist_);
         this->get_parameter("min_switch_interval_sec", min_switch_interval_sec_);
         this->get_parameter("lane_lookahead_idx", lane_lookahead_idx_);
+        this->get_parameter("follow_min_speed", follow_min_speed_);
+        this->get_parameter("follow_max_speed", follow_max_speed_);
+        this->get_parameter("follow_brake_dist", follow_brake_dist_);
+        this->get_parameter("follow_release_dist", follow_release_dist_);
     }
 
     static std::string lane_basename(const std::string& path)
@@ -455,8 +502,11 @@ private:
 
     void update_active_lane(double ego_x, double ego_y)
     {
-        if (lanes_.size() < 2) return;                       // nothing to switch to
-        if (std::isnan(opp_x_) || std::isnan(opp_y_)) return; // no opponent yet
+        // Default: clear gap. If we have no opp data, follow-mode never engages.
+        active_gap_to_opp_ = std::numeric_limits<double>::infinity();
+
+        if (lanes_.empty()) return;
+        if (std::isnan(opp_x_) || std::isnan(opp_y_)) return;
 
         std::vector<bool> blocked(lanes_.size(), false);
         std::vector<double> min_d(lanes_.size(), 0.0);
@@ -464,32 +514,44 @@ private:
             blocked[i] = lane_blocked(lanes_[i], ego_x, ego_y, min_d[i]);
         }
 
-        // Pick highest-priority free lane (last index = highest priority).
-        int desired = active_lane_;
-        for (int i = static_cast<int>(lanes_.size()) - 1; i >= 0; --i) {
-            if (!blocked[i]) { desired = i; break; }
+        // Decide if we should switch (multi-lane only; single-lane just records gap below).
+        if (lanes_.size() >= 2) {
+            // Pick highest-priority free lane (last index = highest priority).
+            int desired = active_lane_;
+            bool any_free = false;
+            for (int i = static_cast<int>(lanes_.size()) - 1; i >= 0; --i) {
+                if (!blocked[i]) { desired = i; any_free = true; break; }
+            }
+
+            if (any_free && desired != active_lane_) {
+                auto now = this->get_clock()->now();
+                if ((now - last_switch_time_).seconds() >= min_switch_interval_sec_) {
+                    RCLCPP_INFO(this->get_logger(),
+                                "lane switch: %s -> %s  (blocked: %s min_d=%.2f, switching to min_d=%.2f)",
+                                lane_names_[active_lane_].c_str(),
+                                lane_names_[desired].c_str(),
+                                blocked[active_lane_] ? "yes" : "no",
+                                min_d[active_lane_],
+                                min_d[desired]);
+                    active_lane_ = desired;
+                    waypoints_ = lanes_[active_lane_];
+                    current_idx_ = nearest_idx_in_lane(waypoints_, ego_x, ego_y);
+                    last_switch_time_ = now;
+                }
+            }
         }
-        // If everything is blocked, hold current lane (controller will slow due to brake_lookahead).
-        if (std::all_of(blocked.begin(), blocked.end(), [](bool b){ return b; })) return;
 
-        if (desired == active_lane_) return;
-
-        auto now = this->get_clock()->now();
-        if ((now - last_switch_time_).seconds() < min_switch_interval_sec_) return;
-
-        RCLCPP_INFO(this->get_logger(),
-                    "lane switch: %s -> %s  (blocked: %s min_d=%.2f, switching to min_d=%.2f)",
-                    lane_names_[active_lane_].c_str(),
-                    lane_names_[desired].c_str(),
-                    blocked[active_lane_] ? "yes" : "no",
-                    min_d[active_lane_],
-                    min_d[desired]);
-
-        active_lane_ = desired;
-        waypoints_ = lanes_[active_lane_];
-        // Reset the search anchor to the nearest point on the new lane.
-        current_idx_ = nearest_idx_in_lane(waypoints_, ego_x, ego_y);
-        last_switch_time_ = now;
+        // After switching (or not), record the actual Euclidean distance from
+        // ego to opp ONLY when our active lane is blocked (i.e. opp is on/near
+        // our path within the forward window). publish_drive uses this for
+        // adaptive cruise. NOTE: this is straight-line ||opp - ego||, not
+        // along-lane arc length — close enough since `blocked` already filters
+        // by "opp is near our forward path".
+        if (blocked[active_lane_]) {
+            double dx = opp_x_ - ego_x;
+            double dy = opp_y_ - ego_y;
+            active_gap_to_opp_ = std::sqrt(dx * dx + dy * dy);
+        }
     }
 
     double quaternion_to_yaw(double qx, double qy, double qz, double qw)
@@ -663,6 +725,35 @@ private:
             speed = (normalized > 0.7) ? std::min(wp_speed, reactive_speed) : wp_speed;
         } else {
             speed = reactive_speed;
+        }
+
+        // Follow-mode (adaptive cruise): cap speed when the active lane has the
+        // opponent inside our forward window. Linear interpolation between
+        // [follow_brake_dist => follow_min_speed] and [follow_release_dist => follow_max_speed].
+        // Skip when RRT is overriding (RRT detours already moved the goal off the
+        // raceline; the cruise cap would fight the maneuver).
+        if (!rrt_active && std::isfinite(active_gap_to_opp_)) {
+            double gap = active_gap_to_opp_;
+            double cap;
+            if (gap <= follow_brake_dist_) {
+                cap = follow_min_speed_;
+            } else if (gap >= follow_release_dist_) {
+                cap = std::numeric_limits<double>::infinity();  // no cap
+            } else {
+                double t = (gap - follow_brake_dist_) /
+                           (follow_release_dist_ - follow_brake_dist_);
+                cap = follow_min_speed_ + t * (follow_max_speed_ - follow_min_speed_);
+            }
+            if (speed > cap) {
+                static double prev_logged_gap = std::numeric_limits<double>::infinity();
+                if (std::abs(gap - prev_logged_gap) > 0.1) {
+                    RCLCPP_INFO(this->get_logger(),
+                                "follow-mode: gap=%.2fm  speed %.2f -> %.2f m/s",
+                                gap, speed, cap);
+                    prev_logged_gap = gap;
+                }
+                speed = cap;
+            }
         }
 
         // Rate-limit acceleration only (braking stays instant)

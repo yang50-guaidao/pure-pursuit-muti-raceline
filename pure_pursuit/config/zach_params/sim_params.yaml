@@ -30,3 +30,21 @@
     min_switch_interval_sec: 0.5
     # Number of forward waypoints scanned per lane when checking occupancy.
     lane_lookahead_idx: 8
+
+    # Adaptive cruise / follow-mode: when the opp is on our active lane within
+    # the forward window, cap speed by Euclidean ego-to-opp distance.
+    #   gap <= follow_brake_dist   -> cap to follow_min_speed
+    #   gap >= follow_release_dist -> no cap (full lane speed)
+    # In between, linear interpolation between the two.
+    #
+    # Tuned for: opp dummy at 4 m/s, ego fast_speed 9 m/s, car length ~0.5m.
+    #   - 0.8m brake: leaves ~0.3m bumper-to-bumper gap (cars are 0.5m long, so
+    #     center-to-center 0.8m = visible separation, no overlap).
+    #   - 4 m/s max: matches opp's cruise speed, so ego converges to "tailing"
+    #     instead of crashing in if no free lane appears.
+    #   - 3.0m release: outside this distance, opp is irrelevant on the active lane.
+    # Aggressive tailing: brake later, brake closer, match opp's 3 m/s.
+    follow_min_speed: 0.5
+    follow_max_speed: 3.0
+    follow_brake_dist: 0.55
+    follow_release_dist: 1.8
